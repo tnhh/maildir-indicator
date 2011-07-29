@@ -93,20 +93,20 @@ class mailIndicator:
 
         # Check mailboxes for new mail
         for name, path in MAILDIRS.iteritems():
+            attention = "false"
             try:
                 # Get a count of "new" mail.
                 # TODO: Should check for unseen mail in cur
                 count = len( os.listdir(path + "new") )
                 oldcount = self.indicators[name].get_property("count")
-                attention = "true"
 
                 # If there are more messages than previously, then we need to notify about it
                 if ( count > int(oldcount) ):
                     noticecount += count
+                    attention = "true"
             except:
                 # If there was an error, set error
                 count = "error"
-                attention = "false"
 
             DEBUG("checking '" + name + "': " + str(count) + " new messages detected", 2)
 
