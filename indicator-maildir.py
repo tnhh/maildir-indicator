@@ -2,13 +2,19 @@
 
 import sys, os, gtk, indicate, pynotify
 
-CHECK_FREQUENCY = 60 # seconds
+# This utility monitors maildirs and emits a notification when new messages arrive.
+# It sits in ubuntu's messaging menu.
+
+# How frequently to check for new messages, in seconds
+CHECK_FREQUENCY = 60
 
 # Hash of maildirs in "FriendlyName : PathWithTrailingSlash" format
 MAILDIRS = {    "Inbox"     : "/home/chris/.maildir-chrisirwin/INBOX/",
                 "KWLug"     :"/home/chris/.maildir-chrisirwin/Lists/Groups/KWLug/"
                 }
-# Indicator entry requires a desktop. It uses it for name & icon, and launches it when clicked.
+
+# Indicator entry requires a desktop. It uses it for name & icon.
+# As this will be passed to an external process, the file must be an absolute path.
 MUA_DESKTOP_FILE = os.path.abspath(os.path.dirname(sys.argv[0])) + "/mutt.desktop"
 
 # Workaround for Ubuntu bug#378783: "xdg-open *.desktop opens text editor"
