@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import sys, os, gtk, indicate
+import sys, os, gtk, indicate, pynotify
 
 CHECK_FREQUENCY = 60 # seconds
 
@@ -18,6 +18,9 @@ MUA_DESKTOP_FILE = os.path.abspath(os.path.dirname(sys.argv[0])) + "/mutt.deskto
 # and possibly other things.
 MUA_LAUNCH_COMMAND="/usr/bin/guake &"
 
+# Title for notification bubbles
+NOTIFY_TITLE="Maildir Monitor"
+
 # Output some messages to console.
 DEBUG_LEVEL = 0
 
@@ -32,6 +35,14 @@ class mailIndicator:
         self.indicator.set_desktop_file(MUA_DESKTOP_FILE)
         self.indicator.connect("server-display", self.indicator_clicked)
         self.indicators = {}
+
+        # Register with notification system
+        if pynotify.init( ("Maildir Indicator") ):
+            DEBUG("Registered with Notification system")
+            self.notify = True
+        else:
+            DEBUG("Failed Registeration with Notification system")
+            self.notify = False
 
         # Build list of maildir indicators
         self.buildMenus()
@@ -71,25 +82,49 @@ class mailIndicator:
 
     def check_mailbox(self):
         DEBUG("Begin Mail Check")
+
+        noticecount = 0
+
         # Check mailboxes for new mail
         for name, path in MAILDIRS.iteritems():
             try:
                 # Get a count of "new" mail.
                 # TODO: Should check for unseen mail in cur
                 count = len( os.listdir(path + "new") )
+                oldcount = self.indicators[name].get_property("count")
                 attention = "true"
+
+                # If there are more messages than previously, then we need to notify about it
+                if ( count > int(oldcount) ):
+                    noticecount += count
             except:
                 # If there was an error, set error
                 count = "error"
                 attention = "false"
 
-            DEBUG("checking '" + name + "': " + str(count) + " new messages detected.", 2)
+            DEBUG("checking '" + name + "': " + str(count) + " new messages detected", 2)
+
+
             # Indicate number of new messages
             self.indicators[name].set_property("count", str(count))
             # Set draw-attention if there is more than 0
             self.indicators[name].set_property("draw-attention", attention);
 
+        if ( noticecount > 0 ):
+            self.sendnotify(str(noticecount) + " new email messages.")
+
         return True
+
+    def sendnotify(self, message):
+        if not self.notify:
+            DEBUG("Bypassing notification")
+            return True
+
+        DEBUG("Sending notification")
+        n = pynotify.Notification(NOTIFY_TITLE, message, "notification-message-email")
+        n.show()
+
+        return n
 
 def DEBUG(message, level = 1):
    if DEBUG_LEVEL >= level:
