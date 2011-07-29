@@ -1,0 +1,9 @@
+[Desktop Entry]
+Categories=ConsoleOnly;Network;Email
+Encoding=UTF-8
+Exec=mutt
+Icon=gnome-terminal
+Type=Application
+Name=Mutt
+GenericName=Mail Client
+Terminal=true

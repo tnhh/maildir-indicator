@@ -1,71 +1,95 @@
 #!/usr/bin/env python
 
-import sys, os, gtk, appindicator
+import sys, os, gtk, indicate
 
 CHECK_FREQUENCY = 60 # seconds
-MAILDIRS = [ "/home/brad/Maildir/" ]
+
+# Hash of maildirs in "FriendlyName : PathWithTrailingSlash" format
+MAILDIRS = {    "Inbox"     : "/home/chris/.maildir-chrisirwin/INBOX/",
+                "KWLug"     :"/home/chris/.maildir-chrisirwin/Lists/Groups/KWLug/"
+                }
+# Indicator entry requires a desktop. It uses it for name & icon, and launches it when clicked.
+MUA_DESKTOP_FILE = os.path.abspath(os.path.dirname(sys.argv[0])) + "/mutt.desktop"
+
+# Workaround for Ubuntu bug#378783: "xdg-open *.desktop opens text editor"
+# https://bugs.launchpad.net/ubuntu/+source/xdg-utils/+bug/378783
+# Due to this bug, trying to xdg-open the MUA_DESKTOP_FILE will instead open it
+# in a text editor. We *could* parse the EXEC line, but would miss TERMINAL=true,
+# and possibly other things.
+MUA_LAUNCH_COMMAND="/usr/bin/guake &"
+
+# Output some messages to console.
 DEBUG_LEVEL = 0
 
+
 class mailIndicator:
-   def __init__(self):
-      self.ind = appindicator.Indicator ("debian-doc-menu",
-              "indicator-messages",
-              appindicator.CATEGORY_APPLICATION_STATUS)
-      self.ind.set_status (appindicator.STATUS_ACTIVE)
-      self.ind.set_attention_icon ("new-messages-red")
+    def __init__(self):
 
-      self.buildMenus()
+        # Register with indicator applet
+        DEBUG("Registering with Indicator Applet")
+        self.indicator = indicate.indicate_server_ref_default()
+        self.indicator.set_type("message.mail")
+        self.indicator.set_desktop_file(MUA_DESKTOP_FILE)
+        self.indicator.connect("server-display", self.indicator_clicked)
+        self.indicators = {}
 
-      self.ind.set_menu(self.menu)
+        # Build list of maildir indicators
+        self.buildMenus()
 
-   def buildMenus(self):
-      self.menu = gtk.Menu()
+    def buildMenus(self):
+        DEBUG("Building maildir indicator list")
+        # Loop through the maildirs configured above
+        for name, path in MAILDIRS.iteritems():
+            DEBUG("Adding maildir '" + name + "'")
+            # Create mailbox indicator
+            new_indicator = indicate.Indicator()
+            new_indicator.set_property("name", name)
+            new_indicator.set_property("count", "0")
+            new_indicator.label = name
+            new_indicator.connect("user-display", self.maildir_clicked)
 
-      self.mutt_item = gtk.MenuItem("Launch Mutt")
-      self.mutt_item.connect("activate", self.launch_mutt)
-      self.mutt_item.show()
-      self.menu.append(self.mutt_item)
+            # Always show it
+            new_indicator.show()
 
-      self.maildir_item = gtk.MenuItem("Configure Maildir(s)")
-      self.maildir_item.connect("activate", self.maildir_clicked)
-      self.maildir_item.show()
-      self.menu.append(self.maildir_item)
+            # Save it for later
+            self.indicators[name] = new_indicator
 
-      self.quit_item = gtk.MenuItem("Quit")
-      self.quit_item.connect("activate", self.quit_clicked)
-      self.quit_item.show()
-      self.menu.append(self.quit_item)
+    def run(self):
+        # This is the main loop
+        self.check_mailbox()
+        gtk.timeout_add(CHECK_FREQUENCY * 1000, self.check_mailbox)
+        gtk.main()
 
-   def run(self):
-      self.check_mailbox()
-      gtk.timeout_add(CHECK_FREQUENCY * 1000, self.check_mailbox)
-      gtk.main()
+    def maildir_clicked(self, widget, data=None):
+        # Not sure how to do this nicely.
+        # no-op it for now.
+        return True
 
-   def maildir_clicked(self, widget,data=None):
-      # stub
-      m = gtk.MessageDialog(None, gtk.DIALOG_DESTROY_WITH_PARENT, gtk.MESSAGE_INFO, gtk.BUTTONS_CLOSE, "STUB")
-      m.run()
-      m.destroy()
+    def indicator_clicked(self, widget,data=None):
+        # Run MUA_LAUNCH_COMMAND
+        os.system(MUA_LAUNCH_COMMAND)
 
-   def quit_clicked(self, widget,data=None):
-      sys.exit(0)
+    def check_mailbox(self):
+        DEBUG("Begin Mail Check")
+        # Check mailboxes for new mail
+        for name, path in MAILDIRS.iteritems():
+            try:
+                # Get a count of "new" mail.
+                # TODO: Should check for unseen mail in cur
+                count = len( os.listdir(path + "new") )
+                attention = "true"
+            except:
+                # If there was an error, set error
+                count = "error"
+                attention = "false"
 
-   def launch_mutt(self, widget,data=None):
-      os.system("gnome-terminal -e mutt &")
+            DEBUG("checking '" + name + "': " + str(count) + " new messages detected.", 2)
+            # Indicate number of new messages
+            self.indicators[name].set_property("count", str(count))
+            # Set draw-attention if there is more than 0
+            self.indicators[name].set_property("draw-attention", attention);
 
-   def check_mailbox(self):
-      DEBUG("Checking Maildirs")
-      newmail = False
-      for maildir in MAILDIRS:
-         newmail = (newmail or (len( os.listdir(maildir + "new") ) > 0))
-
-      if newmail == True:
-         self.ind.set_status (appindicator.STATUS_ATTENTION)
-         DEBUG("new mail detected.", 2)
-      else:
-         self.ind.set_status (appindicator.STATUS_ACTIVE)
-         DEBUG( "no new mail detected.", 2)
-      return True
+        return True
 
 def DEBUG(message, level = 1):
    if DEBUG_LEVEL >= level:
