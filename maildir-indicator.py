@@ -25,7 +25,7 @@ MUA_DESKTOP_FILE = os.path.abspath(os.path.dirname(sys.argv[0])) + "/mutt.deskto
 MUA_LAUNCH_COMMAND="/usr/bin/guake &"
 
 # Title for notification bubbles
-NOTIFY_TITLE="Maildir Monitor"
+NOTIFY_TITLE="Maildir Indicator"
 
 # Output some messages to console.
 DEBUG_LEVEL = 0
