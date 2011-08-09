@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import sys, os, gtk, indicate, pynotify
+import sys, os, gtk, indicate, pynotify, rfc822, string, email.header, email.charset
 
 # This utility monitors maildirs and emits a notification when new messages arrive.
 # It sits in ubuntu's messaging menu.
@@ -22,7 +22,7 @@ MUA_DESKTOP_FILE = os.path.abspath(os.path.dirname(sys.argv[0])) + "/mutt.deskto
 # Due to this bug, trying to xdg-open the MUA_DESKTOP_FILE will instead open it
 # in a text editor. We *could* parse the EXEC line, but would miss TERMINAL=true,
 # and possibly other things.
-MUA_LAUNCH_COMMAND="/usr/bin/guake &"
+MUA_LAUNCH_COMMAND="/usr/bin/gnome-terminal -e mutt &"
 
 # Title for notification bubbles
 NOTIFY_TITLE="Maildir Indicator"
@@ -30,8 +30,13 @@ NOTIFY_TITLE="Maildir Indicator"
 # Output some messages to console.
 DEBUG_LEVEL = 0
 
+# Shorten long names or subjects to a maximum of:
+MAX_HEADER_LENGTH = 20
+
 
 class mailIndicator:
+    notified_messages=[]
+
     def __init__(self):
 
         # Register with indicator applet
@@ -90,6 +95,7 @@ class mailIndicator:
         DEBUG("Begin Mail Check")
 
         noticecount = 0
+        new_messages = {} # { sender: [subject, subject, subject], ...} 
 
         # Check mailboxes for new mail
         for name, path in MAILDIRS.iteritems():
@@ -97,14 +103,35 @@ class mailIndicator:
             try:
                 # Get a count of "new" mail.
                 # TODO: Should check for unseen mail in cur
-                count = len( os.listdir(path + "new") )
+                messages = os.listdir(path + "new")
+                count = len( messages)
                 oldcount = self.indicators[name].get_property("count")
+
+                # get sender names and titles for new messages
+                for message in messages:
+                    if message not in self.notified_messages:
+                        # build an rfc822 object to access email data
+                        fh = open( os.path.join(path, "new", message) )
+                        parsed_message = rfc822.Message(fh)
+                        fh.close()
+                        
+                        sender = get_parsed_header(parsed_message, "From")
+                        subject = get_parsed_header(parsed_message, "Subject")
+
+                        if new_messages.has_key(sender):
+                            new_messages[sender].append(subject)
+                        else:
+                            new_messages[sender] = [subject]
+
+
+                    
+                self.notified_messages = messages
 
                 # If there are more messages than previously, then we need to notify about it
                 if ( count > int(oldcount) ):
                     noticecount += count
                     attention = "true"
-            except:
+            except OSError:
                 # If there was an error, set error
                 count = "error"
 
@@ -117,7 +144,18 @@ class mailIndicator:
             self.indicators[name].set_property("draw-attention", attention);
 
         if ( noticecount > 0 ):
-            self.sendnotify(str(noticecount) + " new email messages.")
+            # format our notification to
+            # Sender Name: subject1, subject 2
+            # Sender Name2: subject3, subject 4
+            new_messages = map( 
+                lambda x: 
+                    "%s: %s" % (x, string.join(new_messages[x], ", ") ), 
+                    new_messages.keys() )
+            notify_text = str(noticecount) + " new email messages:\n" + \
+                string.join(new_messages, "\n")
+
+            DEBUG(notify_text)
+            self.sendnotify(notify_text)
 
         return True
 
@@ -131,6 +169,29 @@ class mailIndicator:
         n.show()
 
         return n
+
+def get_parsed_header(parsed_message, header_name):
+    # I hate charsets!
+    # parsed_message should be an rfc822 object. getheader returns a list
+    # of (value, encoding) tuples. Should return header as decoded unicode 
+    # string.
+    header = parsed_message.getheader(header_name)
+    header = email.header.decode_header(header)
+
+    if  header[0][1] != None: # no charset specified
+        header = unicode(header[0][0], header[0][1])
+    else: # charset specified
+        header = unicode(header[0][0])
+
+    if header_name == "From": 
+        # Remove email address and just give name
+        header = header.split(" <", 1)[0]
+
+    if len(header) > MAX_HEADER_LENGTH: 
+        header = header[:MAX_HEADER_LENGTH-3] + "..."
+
+    return header
+       
 
 def DEBUG(message, level = 1):
    if DEBUG_LEVEL >= level:
