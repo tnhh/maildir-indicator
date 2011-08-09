@@ -1,5 +1,10 @@
-maildir-indicator (0.1) unstable; urgency=low
+maildir-indicator (0.2) natty; urgency=low
 
-  * Initial release (Closes: #nnnn)  <nnnn is the bug number of your ITP>
+  * Change to providing own .desktop file
+  * Split program and config. Add debug messages
+  * Formalize change to WTFPL
+  * Set .desktop file to autostart maildir-indicator
+  * Find .desktop in /usr/share/applications
+  * Initial add of debian packaging
 
- -- Chris Irwin <chris@chrisirwin.ca>  Tue, 09 Aug 2011 00:24:41 -0400
+ -- Chris Irwin <chris@chrisirwin.ca>  Tue, 09 Aug 2011 01:18:42 -0400
