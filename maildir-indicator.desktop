@@ -1,0 +1,10 @@
+[Desktop Entry]
+Categories=Utility;
+Encoding=UTF-8
+Exec=maildir-indicator
+Icon=gnome-terminal
+Type=Application
+Name=Maildir Indicator
+GenericName=Mail Indicator
+Terminal=false
+
