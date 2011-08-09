@@ -22,7 +22,7 @@ def DEBUG(message):
 # If system-wide, the .desktop file will not be in the same directory
 if ( EXEC_DIR == "/usr/bin" ):
     GLOBAL_CONFIG       = "/etc/" + EXEC_NAME + ".conf"
-    MUA_DESKTOP_FILE    = "/usr/share/applications/" + EXEC_NAME + ".desktop"
+    MUA_DESKTOP_FILE    = "/usr/xdg/autostart/" + EXEC_NAME + ".desktop"
 else:
     GLOBAL_CONFIG       = EXEC_DIR + "/" + EXEC_NAME + ".conf"
     MUA_DESKTOP_FILE    = EXEC_DIR + "/" + EXEC_NAME + ".desktop"
