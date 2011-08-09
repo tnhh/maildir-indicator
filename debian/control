@@ -10,7 +10,7 @@ Vcs-Git: git://gitorious.org/chrisirwin-utils/maildir-indicator.git
 
 Package: maildir-indicator
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends} python-indicate, python-notify, python-gtk2
+Depends: ${python:Depends}, ${misc:Depends}, python-indicate, python-notify, python-gtk2
 Description: Message indicator for simple maildirs
  Checks against user-configured maildirs and populates entries in Ubuntu's
  messaging menu.
