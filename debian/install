@@ -1,3 +1,3 @@
 maildir-indicator.conf      etc/
-maildir-indicator.desktop   usr/share/applications/
+maildir-indicator.desktop   etc/xdg/autostart/
 maildir-indicator           usr/bin/
