@@ -6,5 +6,6 @@ Icon=gnome-terminal
 Type=Application
 Name=Maildir Indicator
 GenericName=Mail Indicator
+X-GNOME-Autostart-enabled=true
 Terminal=false
 
