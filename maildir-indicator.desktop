@@ -1,7 +1,7 @@
 [Desktop Entry]
 Categories=Utility;
 Encoding=UTF-8
-Exec=maildir-indicator
+Exec=/usr/bin/maildir-indicator
 Icon=gnome-terminal
 Type=Application
 Name=Maildir Indicator
