@@ -1,0 +1,5 @@
+maildir-indicator (0.1) unstable; urgency=low
+
+  * Initial release (Closes: #nnnn)  <nnnn is the bug number of your ITP>
+
+ -- Chris Irwin <chris@chrisirwin.ca>  Tue, 09 Aug 2011 00:24:41 -0400
