@@ -5,31 +5,59 @@ import sys, os, gtk, indicate, pynotify
 # This utility monitors maildirs and emits a notification when new messages arrive.
 # It sits in ubuntu's messaging menu.
 
-# How frequently to check for new messages, in seconds
-CHECK_FREQUENCY = 60
+# Determine the exec directory. From this we can decide if we are
+# system-wide or local
+EXEC_DIR    = os.path.abspath(os.path.dirname(sys.argv[0]))
 
-# Hash of maildirs in "FriendlyName : PathWithTrailingSlash" format
-MAILDIRS = {    "Inbox"     : "/home/chris/.maildir-chrisirwin/INBOX/",
-                "KWLug"     :"/home/chris/.maildir-chrisirwin/Lists/Groups/KWLug/"
-                }
+EXEC_NAME   = "maildir-indicator"
+
+DEBUG_ON    = True;
+
+def DEBUG(message):
+    if DEBUG_ON == True:
+        print message
 
 # Indicator entry requires a desktop. It uses it for name & icon.
 # As this will be passed to an external process, the file must be an absolute path.
-MUA_DESKTOP_FILE = os.path.abspath(os.path.dirname(sys.argv[0])) + "/mutt.desktop"
+# If system-wide, the .desktop file will not be in the same directory
+if ( EXEC_DIR == "/usr/bin" ):
+    GLOBAL_CONFIG       = "/etc/" + EXEC_NAME + ".conf"
+    MUA_DESKTOP_FILE    = "/usr/xdg/autostart/" + EXEC_NAME + ".desktop"
+else:
+    GLOBAL_CONFIG       = EXEC_DIR + "/" + EXEC_NAME + ".conf"
+    MUA_DESKTOP_FILE    = EXEC_DIR + "/" + EXEC_NAME + ".desktop"
 
-# Workaround for Ubuntu bug#378783: "xdg-open *.desktop opens text editor"
-# https://bugs.launchpad.net/ubuntu/+source/xdg-utils/+bug/378783
-# Due to this bug, trying to xdg-open the MUA_DESKTOP_FILE will instead open it
-# in a text editor. We *could* parse the EXEC line, but would miss TERMINAL=true,
-# and possibly other things.
-MUA_LAUNCH_COMMAND="/usr/bin/guake &"
 
-# Title for notification bubbles
-NOTIFY_TITLE="Maildir Indicator"
+if ( os.environ.get('XDG_CONFIG_HOME') != None ):
+    USER_CONFIG         = os.environ['XDG_CONFIG_HOME'] + "/" + EXEC_NAME + ".conf"
+else:
+    USER_CONFIG         = os.environ['HOME'] + "/.config/" + EXEC_NAME + ".conf"
 
-# Output some messages to console.
-DEBUG_LEVEL = 0
+# Exec global config file.
+# Position debug statement inside block (twice) so we don't accidently output a
+# message if debugging is off
+if ( os.path.isfile( GLOBAL_CONFIG ) ):
+    execfile( GLOBAL_CONFIG )
+    DEBUG( "Including GLOBAL_CONFIG  : " + GLOBAL_CONFIG )
+    DEBUG( " |- OK" )
+else:
+    DEBUG( "Including GLOBAL_CONFIG  : " + GLOBAL_CONFIG )
+    DEBUG( " |- DOES NOT EXIST" )
 
+# Exec user config file.
+DEBUG( "Including USER_CONFIG    : " + USER_CONFIG )
+if ( os.path.isfile( USER_CONFIG ) ):
+    execfile( USER_CONFIG )
+    DEBUG( " |- OK" )
+else:
+    DEBUG( " |- DOES NOT EXIST" )
+
+# Let the user know what values are being used:
+DEBUG( "CONFIGURATION" )
+DEBUG( " |- CHECK_FREQUENCY      : " + str(CHECK_FREQUENCY) )
+DEBUG( " |- MUA_DESKTOP_FILE     : " + MUA_DESKTOP_FILE )
+DEBUG( " |- MUA_LAUNCH_COMMAND   : " + MUA_LAUNCH_COMMAND )
+DEBUG( " |- NOTIFY_TITLE         : " + NOTIFY_TITLE )
 
 class mailIndicator:
     def __init__(self):
@@ -47,17 +75,17 @@ class mailIndicator:
             DEBUG("Registered with Notification system")
             self.notify = True
         else:
-            DEBUG("Failed Registeration with Notification system")
+            DEBUG("Failed Registeration with Notification system. Continuing without notifications")
             self.notify = False
 
         # Build list of maildir indicators
         self.buildMenus()
 
     def buildMenus(self):
-        DEBUG("Building maildir indicator list")
+        DEBUG("BUILDING maildir list")
         # Loop through the maildirs configured above
         for name, path in MAILDIRS.iteritems():
-            DEBUG("Adding maildir '" + name + "'")
+            DEBUG( " |- " + name )
             # Create mailbox indicator
             new_indicator = indicate.Indicator()
             new_indicator.set_property("name", name)
@@ -87,7 +115,7 @@ class mailIndicator:
         os.system(MUA_LAUNCH_COMMAND)
 
     def check_mailbox(self):
-        DEBUG("Begin Mail Check")
+        DEBUG("CHECKING for new mail")
 
         noticecount = 0
 
@@ -96,8 +124,8 @@ class mailIndicator:
             attention = "false"
             try:
                 # Get a count of "new" mail.
-                # TODO: Should check for unseen mail in cur
-                count = len( os.listdir(path + "new") )
+                # TODO: Should check for unseen mail in cur?
+                count = len( os.listdir(path + "/new") )
                 oldcount = self.indicators[name].get_property("count")
 
                 # If there are more messages than previously, then we need to notify about it
@@ -108,7 +136,7 @@ class mailIndicator:
                 # If there was an error, set error
                 count = "error"
 
-            DEBUG("checking '" + name + "': " + str(count) + " new messages detected", 2)
+            DEBUG( " |- " + name + ": " + str(count) + " new messages detected" )
 
 
             # Indicate number of new messages
@@ -123,19 +151,15 @@ class mailIndicator:
 
     def sendnotify(self, message):
         if not self.notify:
-            DEBUG("Bypassing notification")
+            DEBUG("NOT Sending notification")
             return True
 
-        DEBUG("Sending notification")
+        DEBUG( "Sending notification: '" + message + "'" )
         n = pynotify.Notification(NOTIFY_TITLE, message, "notification-message-email")
         n.show()
 
         return n
 
-def DEBUG(message, level = 1):
-   if DEBUG_LEVEL >= level:
-      print message
-
 if __name__ == "__main__":
-   indicator = mailIndicator()
-   indicator.run()
+    indicator = mailIndicator()
+    indicator.run()
