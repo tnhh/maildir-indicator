@@ -1,3 +1,10 @@
+maildir-indicator (0.3) natty; urgency=low
+
+  * Use python:depends substvar
+  * Fix path to .desktop file. Again.
+
+ -- Chris Irwin <chris@chrisirwin.ca>  Tue, 09 Aug 2011 02:08:34 -0400
+
 maildir-indicator (0.2) natty; urgency=low
 
   * Change to providing own .desktop file
