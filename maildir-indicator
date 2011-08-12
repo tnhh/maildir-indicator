@@ -58,10 +58,10 @@ DEBUG( "CONFIGURATION" )
 DEBUG( " |- CHECK_FREQUENCY      : " + str(CHECK_FREQUENCY) )
 DEBUG( " |- MUA_DESKTOP_FILE     : " + MUA_DESKTOP_FILE )
 DEBUG( " |- MUA_LAUNCH_COMMAND   : " + MUA_LAUNCH_COMMAND )
-DEBUG( " |- NOTIFY_TITLE         : " + NOTIFY_TITLE )
 
 class mailIndicator:
-    notified_messages=[]
+    # List of seen files per-directory
+    notified_messages={}
 
     def __init__(self):
 
@@ -102,6 +102,9 @@ class mailIndicator:
             # Save it for later
             self.indicators[name] = new_indicator
 
+            # Set a blank notified messages array to avoid key err later
+            self.notified_messages[name] = []
+
     def run(self):
         # This is the main loop
         self.check_mailbox()
@@ -140,7 +143,7 @@ class mailIndicator:
 
                 # get sender names and titles for new messages
                 for message in messages:
-                    if message not in self.notified_messages:
+                    if message not in self.notified_messages[name]:
                         # build an rfc822 object to access email data
                         fh = open( os.path.join(path, "new", message) )
                         parsed_message = rfc822.Message(fh)
@@ -156,7 +159,8 @@ class mailIndicator:
 
 
                     
-                self.notified_messages = messages
+                # Save this maildir's list of notified messages
+                self.notified_messages[name] = messages
 
                 # If there are more messages than previously then we need to draw attention.
                 # If there are no messages, we specifically want to remove attention.
