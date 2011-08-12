@@ -135,15 +135,17 @@ class mailIndicator:
         # Check mailboxes for new mail
         for name, path in MAILDIRS.iteritems():
             try:
-                # Get a count of "new" mail.
-                # TODO: Should check for unseen mail in cur
+                # Get a list of all new mail
+                # TODO: Should check for unseen mail in cur?
                 messages = os.listdir( os.path.join(path, "new" ) )
-                count = len( messages )
-                oldcount = int(self.indicators[name].get_property("count"))
+                count_new       = len( messages )
+                count_brandnew  = 0
 
                 # get sender names and titles for new messages
                 for message in messages:
                     if message not in self.notified_messages[name]:
+                        # Count brand-new message
+                        count_brandnew += 1
                         # build an rfc822 object to access email data
                         fh = open( os.path.join(path, "new", message) )
                         parsed_message = rfc822.Message(fh)
@@ -162,27 +164,26 @@ class mailIndicator:
                 # Save this maildir's list of notified messages
                 self.notified_messages[name] = messages
 
-                # If there are more messages than previously then we need to draw attention.
-                # If there are no messages, we specifically want to remove attention.
-                # Otherwise, leave the attention state as-is.
-                if ( count > oldcount ):
-                    # Only count brand-new messages for notification
-                    noticecount += (count - oldcount)
-                    # Set draw-attention if there is more than 0
-                    self.indicators[name].set_property("draw-attention", "true");
-                elif ( count == 0 ):
+                # If there are no messages, then remove any attention flag
+                if ( count_new == 0 ):
                     self.indicators[name].set_property("draw-attention", "false");
+                # If there are brand-new messages, then set attention to true
+                # Also add them to the notice
+                elif ( count_brandnew > 0 ):
+                    self.indicators[name].set_property("draw-attention", "true");
+                    noticecount += count_brandnew
+                # Implied default case is to leave the attention flag as-is
             except OSError:
                 # If there was an error, set error
                 count = "error"
 
             DEBUG( " |- " + name + ": " 
-                    + str(count)            + " new messages detected, "
-                    + str(count - oldcount) + " brand-new messages detected" )
+                    + str(count_new)            + " new messages detected, "
+                    + str(count_brandnew) + " brand-new messages detected" )
 
 
             # Indicate number of new messages
-            self.indicators[name].set_property("count", str(count))
+            self.indicators[name].set_property("count", str(count_new))
 
         if ( noticecount > 0 ):
             notify_title = str(noticecount) + " new email messages\n"
