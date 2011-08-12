@@ -130,7 +130,7 @@ class mailIndicator:
         DEBUG("CHECKING for new mail")
 
         noticecount = 0
-        new_messages = {} # { sender: [subject, subject, subject], ...} 
+        message_data = {} # { sender: [subject, subject, subject], ...} 
 
         # Check mailboxes for new mail
         for name, path in MAILDIRS.iteritems():
@@ -152,10 +152,10 @@ class mailIndicator:
                         sender = get_parsed_header(parsed_message, "From").strip('"')
                         subject = get_parsed_header(parsed_message, "Subject")
 
-                        if new_messages.has_key(sender):
-                            new_messages[sender].append(subject)
+                        if message_data.has_key(sender):
+                            message_data[sender].append(subject)
                         else:
-                            new_messages[sender] = [subject]
+                            message_data[sender] = [subject]
 
 
                     
@@ -188,12 +188,12 @@ class mailIndicator:
             # format our notification to
             # Sender Name: subject1, subject 2
             # Sender Name2: subject3, subject 4
-            new_messages = map( 
+            message_data = map( 
                 lambda x: 
-                    "%s: %s" % (x, string.join(new_messages[x], ", ") ), 
-                    new_messages.keys() )
+                    "%s: %s" % (x, string.join(message_data[x], ", ") ), 
+                    message_data.keys() )
             notify_text = str(noticecount) + " new email messages:\n" + \
-                string.join(new_messages, "\n")
+                string.join(message_data, "\n")
 
             DEBUG(notify_text)
             self.sendnotify(notify_text)
