@@ -1,3 +1,9 @@
+maildir-indicator (0.5) natty; urgency=low
+
+  * Don't guess new messages count, track them during inspection
+
+ -- Chris Irwin <chris@chrisirwin.ca>  Fri, 12 Aug 2011 01:44:51 -0400
+
 maildir-indicator (0.4) natty; urgency=low
 
   * Add Brad's 20110804 update
