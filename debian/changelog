@@ -1,3 +1,20 @@
+maildir-indicator (0.4) natty; urgency=low
+
+  * Add Brad's 20110804 update
+  * Only count brand-new messages for notification count
+  * Only set 'attention' if count is higher or zero.
+  * Clicking a maildir entry removes attention flag
+  * Fix debug output on user config exec
+  * Use os.path.join to solve slash issue
+  * Save notified_messages on a per-maildir basis
+  * Strip quote marks from start & end of sender
+  * Rename new_messages to message_data as that is what it contains
+  * Change message format to one subject per line
+  * Move message count to notification title
+  * Increase header item length
+
+ -- Chris Irwin <chris@chrisirwin.ca>  Fri, 12 Aug 2011 01:17:34 -0400
+
 maildir-indicator (0.3) natty; urgency=low
 
   * Use python:depends substvar
