@@ -45,11 +45,12 @@ else:
     DEBUG( " |- DOES NOT EXIST" )
 
 # Exec user config file.
-DEBUG( "Including USER_CONFIG    : " + USER_CONFIG )
 if ( os.path.isfile( USER_CONFIG ) ):
     execfile( USER_CONFIG )
+    DEBUG( "Including USER_CONFIG    : " + USER_CONFIG )
     DEBUG( " |- OK" )
 else:
+    DEBUG( "Including USER_CONFIG    : " + USER_CONFIG )
     DEBUG( " |- DOES NOT EXIST" )
 
 # Let the user know what values are being used:
