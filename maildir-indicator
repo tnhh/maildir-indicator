@@ -135,9 +135,8 @@ class mailIndicator:
                 # Get a count of "new" mail.
                 # TODO: Should check for unseen mail in cur
                 messages = os.listdir(path + "/new")
-                DEBUG ("test")
-                count = len( messages)
-                oldcount = self.indicators[name].get_property("count")
+                count = len( messages )
+                oldcount = int(self.indicators[name].get_property("count"))
 
                 # get sender names and titles for new messages
                 for message in messages:
@@ -159,9 +158,12 @@ class mailIndicator:
                     
                 self.notified_messages = messages
 
-                # If there are more messages than previously, then we need to notify about it
-                if ( count > int(oldcount) ):
-                    noticecount += count
+                # If there are more messages than previously then we need to draw attention.
+                # If there are no messages, we specifically want to remove attention.
+                # Otherwise, leave the attention state as-is.
+                if ( count > oldcount ):
+                    # Only count brand-new messages for notification
+                    noticecount += (count - oldcount)
                     # Set draw-attention if there is more than 0
                     self.indicators[name].set_property("draw-attention", "true");
                 elif ( count == 0 ):
@@ -170,7 +172,9 @@ class mailIndicator:
                 # If there was an error, set error
                 count = "error"
 
-            DEBUG( " |- " + name + ": " + str(count) + " new messages detected" )
+            DEBUG( " |- " + name + ": " 
+                    + str(count)            + " new messages detected, "
+                    + str(count - oldcount) + " brand-new messages detected" )
 
 
             # Indicate number of new messages
