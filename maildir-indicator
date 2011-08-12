@@ -106,8 +106,14 @@ class mailIndicator:
         gtk.main()
 
     def maildir_clicked(self, widget, data=None):
-        # Not sure how to do this nicely.
-        # no-op it for now.
+        # User clicked on a maildir entry. We don't open anything,
+        # just mark remove the attention flag.
+        name = widget.get_property("name")
+        count = widget.get_property("count")
+        DEBUG("Removing attention flag from " + count + " messages in " + name)
+
+        # Mark this mail box as no-longer needing attention.
+        widget.set_property("draw-attention", "false");
         return True
 
     def indicator_clicked(self, widget,data=None):
