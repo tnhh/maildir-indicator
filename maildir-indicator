@@ -185,6 +185,7 @@ class mailIndicator:
             self.indicators[name].set_property("count", str(count))
 
         if ( noticecount > 0 ):
+            notify_title = str(noticecount) + " new email messages\n"
             # format our notification to
             # Sender Name: subject1, subject 2
             # Sender Name2: subject3, subject 4
@@ -194,18 +195,17 @@ class mailIndicator:
                     message_data.keys() )
             notify_text = string.join(message_data, "\n")
 
-            DEBUG(notify_text)
-            self.sendnotify(notify_text)
+            self.sendnotify(notify_title, notify_text)
 
         return True
 
-    def sendnotify(self, message):
+    def sendnotify(self, title, message):
         if not self.notify:
             DEBUG("NOT Sending notification")
             return True
 
-        DEBUG( "Sending notification: '" + message + "'" )
-        n = pynotify.Notification(NOTIFY_TITLE, message, "notification-message-email")
+        DEBUG( "Sending notification" )
+        n = pynotify.Notification(title, message, "notification-message-email")
         n.show()
 
         return n
