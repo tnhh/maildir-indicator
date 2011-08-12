@@ -127,7 +127,6 @@ class mailIndicator:
 
         # Check mailboxes for new mail
         for name, path in MAILDIRS.iteritems():
-            attention = "false"
             try:
                 # Get a count of "new" mail.
                 # TODO: Should check for unseen mail in cur?
@@ -137,7 +136,10 @@ class mailIndicator:
                 # If there are more messages than previously, then we need to notify about it
                 if ( count > int(oldcount) ):
                     noticecount += count
-                    attention = "true"
+                    # Set draw-attention if there is more than 0
+                    self.indicators[name].set_property("draw-attention", "true");
+                elif ( count == 0 ):
+                    self.indicators[name].set_property("draw-attention", "false");
             except:
                 # If there was an error, set error
                 count = "error"
@@ -147,8 +149,6 @@ class mailIndicator:
 
             # Indicate number of new messages
             self.indicators[name].set_property("count", str(count))
-            # Set draw-attention if there is more than 0
-            self.indicators[name].set_property("draw-attention", attention);
 
         if ( noticecount > 0 ):
             self.sendnotify(str(noticecount) + " new email messages.")
