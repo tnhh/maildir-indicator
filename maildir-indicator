@@ -134,7 +134,7 @@ class mailIndicator:
             try:
                 # Get a count of "new" mail.
                 # TODO: Should check for unseen mail in cur
-                messages = os.listdir(path + "/new")
+                messages = os.listdir( os.path.join(path, "new" ) )
                 count = len( messages )
                 oldcount = int(self.indicators[name].get_property("count"))
 
