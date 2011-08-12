@@ -190,10 +190,9 @@ class mailIndicator:
             # Sender Name2: subject3, subject 4
             message_data = map( 
                 lambda x: 
-                    "%s: %s" % (x, string.join(message_data[x], ", ") ), 
+                    "%s:\n\t%s" % (x, string.join(message_data[x], "\n\t") ), 
                     message_data.keys() )
-            notify_text = str(noticecount) + " new email messages:\n" + \
-                string.join(message_data, "\n")
+            notify_text = string.join(message_data, "\n")
 
             DEBUG(notify_text)
             self.sendnotify(notify_text)
