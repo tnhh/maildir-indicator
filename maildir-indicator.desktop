@@ -1,0 +1,11 @@
+[Desktop Entry]
+Categories=Utility;
+Encoding=UTF-8
+Exec=/usr/bin/maildir-indicator
+Icon=gnome-terminal
+Type=Application
+Name=Maildir Indicator
+GenericName=Mail Indicator
+X-GNOME-Autostart-enabled=true
+Terminal=false
+

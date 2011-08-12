@@ -1,0 +1,3 @@
+maildir-indicator.conf      etc/
+maildir-indicator.desktop   etc/xdg/autostart/
+maildir-indicator           usr/bin/

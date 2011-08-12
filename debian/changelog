@@ -1,0 +1,23 @@
+maildir-indicator (0.3) natty; urgency=low
+
+  * Use python:depends substvar
+  * Fix path to .desktop file. Again.
+
+ -- Chris Irwin <chris@chrisirwin.ca>  Tue, 09 Aug 2011 02:08:34 -0400
+
+maildir-indicator (0.2) natty; urgency=low
+
+  * Change to providing own .desktop file
+  * Split program and config. Add debug messages
+  * Formalize change to WTFPL
+  * Set .desktop file to autostart maildir-indicator
+  * Find .desktop in /usr/share/applications
+  * Initial add of debian packaging
+  * Fix pathing in EXEC line in .desktop file
+  * Rename maildir-indicator to nicer name for system use
+  * Fix install to non-.py version
+  * Don't use quilt
+  * Revert "Find .desktop in /usr/share/applications"
+  * Install .desktop file to xdg autostart dir
+
+ -- Chris Irwin <chris@chrisirwin.ca>  Tue, 09 Aug 2011 01:51:59 -0400
