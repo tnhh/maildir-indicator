@@ -34,7 +34,7 @@ else:
     USER_CONFIG         = os.environ['HOME'] + "/.config/" + EXEC_NAME + ".conf"
 
 # Exec global config file.
-# Position debug statement inside block (twice) so we don't accidently output a
+# Position debug statement inside block (twice) so we don't accidentally output a
 # message if debugging is off
 if ( os.path.isfile( GLOBAL_CONFIG ) ):
     execfile( GLOBAL_CONFIG )
@@ -78,7 +78,7 @@ class mailIndicator:
             DEBUG("Registered with Notification system")
             self.notify = True
         else:
-            DEBUG("Failed Registeration with Notification system. Continuing without notifications")
+            DEBUG("Failed Registration with Notification system. Continuing without notifications")
             self.notify = False
 
         # Build list of maildir indicators
