@@ -99,6 +99,7 @@ class mailIndicator:
             # Create mailbox indicator
             new_indicator = indicate.Indicator()
             new_indicator.set_property("name", name)
+            new_indicator.set_property("path", path)
             new_indicator.set_property("count", "0")
             new_indicator.label = name
             new_indicator.connect("user-display", self.maildir_clicked)
@@ -119,20 +120,29 @@ class mailIndicator:
         gtk.main()
 
     def maildir_clicked(self, widget, data=None):
-        # User clicked on a maildir entry. We don't open anything,
-        # just mark remove the attention flag.
+        # User clicked on a maildir entry.
+        # Run MUA_LAUNCH_COMMAND indicating the appropriate maildir folder
         name = widget.get_property("name")
+        path = widget.get_property("path")
         count = widget.get_property("count")
         DEBUG("Removing attention flag from " + count + " messages in " + name)
 
         # Mark this mail box as no-longer needing attention.
         self.set_attention(widget, False)
 
+        # launch MUA, exporting FOLDER variable for use by scripts
+        os.environ['FOLDER'] = path
+        os.system(MUA_LAUNCH_COMMAND)
+        os.unsetenv("FOLDER")
+
         return True
 
     def indicator_clicked(self, widget,data=None):
-        # Run MUA_LAUNCH_COMMAND
-        os.system(MUA_LAUNCH_COMMAND)
+        # User clicked on the main indicator
+        # clear attention flag for all mailboxes
+        for name, path in MAILDIRS.iteritems():
+            #self.indicators[name].set_property("draw-attention", "false")
+            self.set_attention(self.indicators[name], False)
 
     def check_mailbox(self):
         DEBUG("CHECKING for new mail")
