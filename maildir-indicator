@@ -219,10 +219,10 @@ def get_parsed_header(parsed_message, header_name):
     header = parsed_message.getheader(header_name)
     header = email.header.decode_header(header)
 
-    if  header[0][1] != None: # no charset specified
-        header = unicode(header[0][0], header[0][1])
-    else: # charset specified
-        header = unicode(header[0][0])
+    if  header[0][1] != None: # charset specified
+        header = unicode(header[0][0], header[0][1], "ignore")
+    else: # no charset specified
+        header = unicode(header[0][0], "utf-8", "ignore")
 
     if header_name == "From": 
         # Remove email address and just give name
