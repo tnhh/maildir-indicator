@@ -146,18 +146,19 @@ class mailIndicator:
                     if message not in self.notified_messages[name]:
                         # Count brand-new message
                         count_brandnew += 1
-                        # build an rfc822 object to access email data
-                        fh = open( os.path.join(path, "new", message) )
-                        parsed_message = rfc822.Message(fh)
-                        fh.close()
-                        
-                        sender = get_parsed_header(parsed_message, "From").strip('"')
-                        subject = get_parsed_header(parsed_message, "Subject")
+                        if (count_brandnew <= MAX_NOTIFY):
+                            # build an rfc822 object to access email data
+                            fh = open( os.path.join(path, "new", message) )
+                            parsed_message = rfc822.Message(fh)
+                            fh.close()
+                            
+                            sender = get_parsed_header(parsed_message, "From").strip('"')
+                            subject = get_parsed_header(parsed_message, "Subject")
 
-                        if message_data.has_key(sender):
-                            message_data[sender].append(subject)
-                        else:
-                            message_data[sender] = [subject]
+                            if message_data.has_key(sender):
+                                message_data[sender].append(subject)
+                            else:
+                                message_data[sender] = [subject]
 
 
                     
