@@ -220,19 +220,19 @@ class mailIndicator:
 
         return n
 
-	# wrapper function to deal with setting and unsetting attention for a mailbox
-	def set_attention(self, indicator, attention):
-	    name = re.sub('\*$', '', indicator.get_property("name"))
-	    if attention is True:
-	        DEBUG("setting draw-attention to true")
-	        indicator.set_property("draw-attention", "true");
-	        indicator.set_property("name", name + "*")
-	    else:
-	        DEBUG("setting draw-attention to false")
-	        indicator.set_property("draw-attention", "false");
-	        indicator.set_property("name", name)
+    # wrapper function to deal with setting and unsetting attention for a mailbox
+    def set_attention(self, indicator, attention):
+        name = re.sub('\*$', '', indicator.get_property("name"))
+        if attention is True:
+            DEBUG("setting draw-attention to true")
+            indicator.set_property("draw-attention", "true");
+            indicator.set_property("name", name + "*")
+        else:
+            DEBUG("setting draw-attention to false")
+            indicator.set_property("draw-attention", "false");
+            indicator.set_property("name", name)
 
-	    return True
+        return True
 
 def get_parsed_header(parsed_message, header_name):
     # I hate charsets!
