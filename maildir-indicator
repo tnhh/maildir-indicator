@@ -137,7 +137,7 @@ class mailIndicator:
 
         return True
 
-    def indicator_clicked(self, widget,data=None):
+    def indicator_clicked(self, widget, data=None):
         # User clicked on the main indicator
         # clear attention flag for all mailboxes
         for name, path in MAILDIRS.iteritems():
