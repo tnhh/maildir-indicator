@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import sys, os, gtk, indicate, pynotify, rfc822, string, email.header, email.charset
+import sys, os, gtk, indicate, pynotify, rfc822, string, email.header, email.charset, re
 
 # This utility monitors maildirs and emits a notification when new messages arrive.
 # It sits in ubuntu's messaging menu.
@@ -126,7 +126,8 @@ class mailIndicator:
         DEBUG("Removing attention flag from " + count + " messages in " + name)
 
         # Mark this mail box as no-longer needing attention.
-        widget.set_property("draw-attention", "false")
+        self.set_attention(widget, False)
+
         return True
 
     def indicator_clicked(self, widget,data=None):
@@ -174,11 +175,11 @@ class mailIndicator:
 
                 # If there are no messages, then remove any attention flag
                 if ( count_new == 0 ):
-                    self.indicators[name].set_property("draw-attention", "false")
+                    self.set_attention(self.indicators[name], False)
                 # If there are brand-new messages, then set attention to true
                 # Also add them to the notice
                 elif ( count_brandnew > 0 ):
-                    self.indicators[name].set_property("draw-attention", "true")
+                    self.set_attention(self.indicators[name], True)
                     noticecount += count_brandnew
                 # Implied default case is to leave the attention flag as-is
             except OSError:
@@ -218,6 +219,20 @@ class mailIndicator:
         n.show()
 
         return n
+
+	# wrapper function to deal with setting and unsetting attention for a mailbox
+	def set_attention(self, indicator, attention):
+	    name = re.sub('\*$', '', indicator.get_property("name"))
+	    if attention is True:
+	        DEBUG("setting draw-attention to true")
+	        indicator.set_property("draw-attention", "true");
+	        indicator.set_property("name", name + "*")
+	    else:
+	        DEBUG("setting draw-attention to false")
+	        indicator.set_property("draw-attention", "false");
+	        indicator.set_property("name", name)
+
+	    return True
 
 def get_parsed_header(parsed_message, header_name):
     # I hate charsets!
