@@ -63,6 +63,8 @@ DEBUG( "CONFIGURATION" )
 DEBUG( " |- CHECK_FREQUENCY      : " + str(CHECK_FREQUENCY) )
 DEBUG( " |- MUA_DESKTOP_FILE     : " + MUA_DESKTOP_FILE )
 DEBUG( " |- MUA_LAUNCH_COMMAND   : " + MUA_LAUNCH_COMMAND )
+DEBUG( " |- MAX_HEADER_LENGTH   : " + str(MAX_HEADER_LENGTH) )
+DEBUG( " |- MAX_NOTIFY   : " + str(MAX_NOTIFY) )
 
 class mailIndicator:
     # List of seen files per-directory
