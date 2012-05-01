@@ -17,6 +17,11 @@ def DEBUG(message):
     if DEBUG_ON == True:
         print message
 
+# defaults
+MAX_HEADER_LENGTH = 30
+MAX_NOTIFY = 10
+CHECK_FREQUENCY = 300
+
 # Indicator entry requires a desktop. It uses it for name & icon.
 # As this will be passed to an external process, the file must be an absolute path.
 # If system-wide, the .desktop file will not be in the same directory
